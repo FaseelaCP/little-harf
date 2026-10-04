@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Little Harf — Arabic for Little Learners</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Arabic",sans-serif;background:#fff8ef;color:#263238}
+button{font:inherit;border:0;cursor:pointer}.app{max-width:1050px;margin:auto;min-height:100vh;padding:18px}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 8px}
+.logo{font-size:28px;font-weight:900;color:#5b4bdb}.logo span{color:#ff8a3d}
+.stars{background:#fff;border-radius:22px;padding:10px 16px;font-weight:800;box-shadow:0 3px 15px #00000012}
+.screen{display:none}.screen.active{display:block}
+.hero{background:linear-gradient(135deg,#8d7cff,#6fd7c4);border-radius:32px;padding:34px;color:#fff;text-align:center;box-shadow:0 12px 30px #5b4bdb22}
+.hero h1{font-size:46px;margin:8px}.hero p{font-size:19px}
+.mascot{font-size:76px}.primary{background:#ff8a3d;color:white;padding:15px 28px;border-radius:18px;font-weight:900;box-shadow:0 6px 0 #d96827}.secondary{background:#fff;color:#5b4bdb;padding:13px 22px;border-radius:16px;font-weight:800}
+.card{background:#fff;border-radius:25px;padding:22px;box-shadow:0 8px 25px #0000000c;margin:18px 0}
+h2{font-size:30px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:14px}
+.letter{background:#fff;border:3px solid #eee3ff;border-radius:22px;padding:15px;text-align:center;transition:.2s}.letter:hover{transform:translateY(-4px);border-color:#8d7cff}.letter .ar{font-size:48px;font-weight:900;color:#5b4bdb;direction:rtl}.letter small{display:block;color:#667;margin-top:5px}
+.progress{height:14px;background:#eee;border-radius:10px;overflow:hidden}.progress i{display:block;height:100%;background:#ffb84d;width:0}
+.lesson{text-align:center}.bigletter{font-size:130px;font-weight:900;color:#5b4bdb;direction:rtl}.picture{font-size:90px}.word{font-size:35px;font-weight:900;direction:rtl}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px}
+.gamebox{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.options{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;max-width:650px}.opt{background:#f5f1ff;padding:20px;border-radius:20px;font-size:40px;color:#5b4bdb}.opt.correct{background:#bff3d5}.opt.wrong{background:#ffd0d0}
+.trace{border:4px dashed #bdb0ff;border-radius:22px;background:#fff;width:min(500px,100%);height:230px;touch-action:none}
+.badge{font-size:80px}.center{text-align:center}.back{margin:5px 0 12px}.nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}.nav button{background:#fff;padding:11px 15px;border-radius:15px;font-weight:800}
+.notice{background:#fff2b8;border-radius:18px;padding:13px;text-align:center;font-weight:700}
+@media(max-width:600px){.hero h1{font-size:36px}.options{grid-template-columns:repeat(2,1fr)}.bigletter{font-size:105px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">Little <span>Harf</span> 🌈</div><div class="stars">⭐ <span id="points">0</span></div></header>
+
+<section id="home" class="screen active">
+<div class="hero"><div class="mascot">🐰</div><h1>Let's Learn Arabic!</h1><p>Letters • Pictures • Games • Rewards</p><button class="primary" onclick="showLetters()">Start Learning 🚀</button></div>
+<div class="card"><h2>🌟 Your Journey</h2><div class="progress"><i id="homeProgress"></i></div><p id="progressText">0 of 28 letters completed</p></div>
+<div class="nav"><button onclick="showLetters()">🔤 Letters</button><button onclick="showRewards()">🏆 Rewards</button><button onclick="daily()">🎁 Daily Bonus</button></div>
+</section>
+
+<section id="letters" class="screen">
+<button class="secondary back" onclick="show('home')">← Home</button>
+<div class="card"><h2>🔤 Letter Land</h2><p>Choose a letter to begin your lesson.</p><div class="grid" id="letterGrid"></div></div>
+</section>
+
+<section id="lesson" class="screen">
+<button class="secondary back" onclick="showLetters()">← All Letters</button>
+<div class="card lesson">
+<div id="lessonLetter" class="bigletter">ا</div>
+<div id="lessonName" style="font-size:25px;font-weight:900"></div>
+<div id="lessonPic" class="picture"></div>
+<div id="lessonWord" class="word"></div>
+<div class="actions"><button class="primary" onclick="speakCurrent()">🔊 Hear</button><button class="secondary" onclick="startTrace()">✏️ Trace</button><button class="secondary" onclick="startPuzzle()">🧩 Puzzle</button><button class="secondary" onclick="startFind()">🎯 Find It</button></div>
+</div>
+<div id="activity" class="card gamebox"></div>
+</section>
+
+<section id="rewards" class="screen">
+<button class="secondary back" onclick="show('home')">← Home</button>
+<div class="card center"><h2>🏆 Little Harf Rewards</h2><div class="badge">🌟</div><h2><span id="rewardPoints">0</span> Stars</h2><p id="badgeText">Keep learning to unlock badges!</p></div>
+</section>
+
+<section id="bonus" class="screen">
+<div class="card center"><div class="badge">🎁</div><h2>Daily Bonus!</h2><p>You earned 10 stars.</p><button class="primary" onclick="show('home')">Awesome! ⭐</button></div>
+</section>
+</div>
+
+<script>
+const letters=[
+['ا','أَلِف','أَسَد','🦁'],['ب','بَاء','بَطَّة','🦆'],['ت','تَاء','تُفَّاح','🍎'],['ث','ثَاء','ثَعْلَب','🦊'],
+['ج','جِيم','جَمَل','🐪'],['ح','حَاء','حِصَان','🐴'],['خ','خَاء','خُبْز','🍞'],['د','دَال','دُبّ','🐻'],
+['ذ','ذَال','ذُرَّة','🌽'],['ر','رَاء','رُمَّان','🍎'],['ز','زَاي','زَهْرَة','🌸'],['س','سِين','سَمَكَة','🐟'],
+['ش','شِين','شَمْس','☀️'],['ص','صَاد','صَابُون','🧼'],['ض','ضَاد','ضِفْدَع','🐸'],['ط','طَاء','طَائِر','🐦'],
+['ظ','ظَاء','ظَرْف','✉️'],['ع','عَيْن','عَيْن','👁️'],['غ','غَيْن','غَزَال','🦌'],['ف','فَاء','فِيل','🐘'],
+['ق','قَاف','قَمَر','🌙'],['ك','كَاف','كِتَاب','📕'],['ل','لَام','لَيْمُون','🍋'],['م','مِيم','مَوْز','🍌'],
+['ن','نُون','نَجْم','⭐'],['ه','هَاء','هِلَال','🌙'],['و','وَاو','وَرْدَة','🌹'],['ي','يَاء','يَد','✋']
+];
+let points=Number(localStorage.getItem('lhPoints')||0);
+let done=JSON.parse(localStorage.getItem('lhDone')||'[]');
+let current=0;
+const $=id=>document.getElementById(id);
+
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');update()}
+function update(){
+ $('points').textContent=points;$('rewardPoints').textContent=points;
+ $('homeProgress').style.width=(done.length/28*100)+'%';$('progressText').textContent=done.length+' of 28 letters completed';
+ $('badgeText').textContent=points>=300?'🏆 Arabic Star!':points>=150?'🥇 Super Learner!':points>=50?'🥈 Little Explorer!':'Keep learning to unlock badges!';
+}
+function showLetters(){renderLetters();show('letters')}
+function renderLetters(){
+ $('letterGrid').innerHTML=letters.map((l,i)=>`<button class="letter" onclick="openLesson(${i})"><div class="ar">${l[0]}</div><b>${l[1]}</b><small>${done.includes(i)?'⭐ Completed':'Tap to learn'}</small></button>`).join('');
+}
+function openLesson(i){
+ current=i;let l=letters[i];$('lessonLetter').textContent=l[0];$('lessonName').textContent=l[1];$('lessonPic').textContent=l[3];$('lessonWord').textContent=l[2];
+ $('activity').innerHTML='<h2>Choose an activity 🎮</h2><p>Hear the letter, trace it, solve a puzzle, or find it!</p>';show('lesson');
+}
+function speak(text){if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='ar-SA';u.rate=.75;speechSynthesis.speak(u)}}
+function speakCurrent(){speak(letters[current][1]);setTimeout(()=>speak(letters[current][2]),700);add(2)}
+function startTrace(){
+ $('activity').innerHTML='<h2>✏️ Trace the letter</h2><p>Draw the letter with your finger or mouse.</p><canvas id="canvas" class="trace" width="500" height="230"></canvas><div class="actions"><button class="primary" onclick="finish()">I did it! ⭐</button><button class="secondary" onclick="clearCanvas()">Clear</button></div>';
+ let c=$('canvas'),ctx=c.getContext('2d'),down=false;ctx.lineWidth=8;ctx.lineCap='round';ctx.strokeStyle='#8d7cff';
+ function pos(e){let r=c.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return{x:(p.clientX-r.left)*c.width/r.width,y:(p.clientY-r.top)*c.height/r.height}}
+ function start(e){down=true;let p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault()}
+ function move(e){if(!down)return;let p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault()}
+ function end(){down=false}
+ c.onmousedown=start;c.onmousemove=move;c.onmouseup=end;c.onmouseleave=end;c.ontouchstart=start;c.ontouchmove=move;c.ontouchend=end;
+}
+function clearCanvas(){let c=$('canvas');c.getContext('2d').clearRect(0,0,c.width,c.height)}
+function startPuzzle(){
+ let l=letters[current], distract=letters[(current+5)%28][0];$('activity').innerHTML=`<h2>🧩 Letter Puzzle</h2><p>Which one is <b>${l[1]}</b>?</p><div class="options"><button class="opt" onclick="answer(this,true)">${l[0]}</button><button class="opt" onclick="answer(this,false)">${distract}</button><button class="opt" onclick="answer(this,false)">${letters[(current+9)%28][0]}</button><button class="opt" onclick="answer(this,false)">${letters[(current+14)%28][0]}</button></div><div id="feedback"></div>`;
+}
+function startFind(){
+ let l=letters[current], choices=[l[0],letters[(current+2)%28][0],letters[(current+7)%28][0],letters[(current+11)%28][0]].sort(()=>Math.random()-.5);
+ $('activity').innerHTML=`<h2>🎯 Find ${l[0]}</h2><p>Tap the correct letter!</p><div class="options">${choices.map(x=>`<button class="opt" onclick="answer(this,${x===l[0]})">${x}</button>`).join('')}</div><div id="feedback"></div>`;
+}
+function answer(btn,ok){$('feedback').innerHTML=ok?'<h2>🎉 Great job!</h2><p>+10 stars ⭐</p>':'<h2>😊 Try again!</h2><p>Look carefully and try another one.</p>';if(ok){btn.classList.add('correct');add(10);finish();}else btn.classList.add('wrong')}
+function finish(){if(!done.includes(current)){done.push(current);localStorage.setItem('lhDone',JSON.stringify(done));add(20)}else update();$('activity').innerHTML+='<div class="notice">🌟 Letter completed! Next letter unlocked.</div>';renderLetters()}
+function add(n){points+=n;localStorage.setItem('lhPoints',points);update()}
+function showRewards(){update();show('rewards')}
+function daily(){add(10);show('bonus')}
+renderLetters();update();
+</script>
+</body>
+</html>
